@@ -1,8 +1,8 @@
 # Import(s)
 
-import teslajson
-
 from os import getenv
+
+from teslajson import Connection
 
 # Constant(s)
 
@@ -22,6 +22,6 @@ assert TESLA_ACTION in SUPPORTED_TESLA_ACTIONS
 
 # Action processing
 
-connection = teslajson.Connection(TESLA_EMAIL, TESLA_PASSWORD)
+connection = Connection(TESLA_EMAIL, TESLA_PASSWORD)
 if TESLA_ACTION == LIST_VEHICLES_ACTION:
-    print(connection.vehicles)
+    print(connection.vehicles or 'No vehicles found :*(')
