@@ -1,0 +1,65 @@
+RESET_VENV=${RESET_VENV:-"false"};
+VENV_DIR="$(dirname $0)/../.venv";
+
+
+activate_venv () {
+  deactivate_venv;
+  export LANG="en_US.UTF-8" LC_ALL="en_US.UTF-8";
+  source "$VENV_DIR/bin/activate";
+}
+
+create_venv_if_applicable () {
+  if [ ! -e "$VENV_DIR" ]; then
+    python -m venv $VENV_DIR;
+  fi
+}
+
+deactivate_venv () {
+  if [ -n "$VIRTUAL_ENV" ]; then
+    deactivate > /dev/null 2>&1 || true;
+    unset \
+      LANG \
+      LC_ALL \
+      VIRTUAL_ENV;
+  fi
+}
+
+install_dependencies_into_venv () {
+  activate_venv;
+
+  pip install --upgrade pip setuptools;
+
+  requirements_first_file="$(dirname $0)/../requirements-first.txt";
+  if [ -e "$requirements_first_file" ]; then
+    pip install \
+      --global-option=build_ext \
+      --global-option="-I/usr/local/opt/openssl/include" \
+      --global-option="-L/usr/local/opt/openssl/lib" \
+      --requirement $requirements_first_file;
+  fi
+
+  requirements_file="$(dirname $0)/../requirements.txt";
+  if [ -e "$requirements_file" ]; then
+    pip install --requirement $requirements_file;
+  fi
+
+  requirements_dev_file="$(dirname $0)/../requirements-dev.txt";
+  if [ -e "$requirements_dev_file" ]; then
+    pip install --requirement $requirements_dev_file;
+  fi
+
+  requirements_last_file="$(dirname $0)/../requirements-last.txt";
+  if [ -e "$requirements_last_file" ]; then
+    pip install --requirement "$requirements_last_file";
+  fi
+}
+
+reset_venv_if_applicable () {
+  if [ "$RESET_VENV" = "true" ]; then
+    if [ -e $VENV_DIR ]; then
+      echo "Clearing an existing venv..."
+      deactivate_venv;
+      rm -r $VENV_DIR;
+    fi
+  fi
+}

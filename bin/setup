@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e;
+
+source $(dirname $0)/../helpers/with-venv;
+deactivate_venv;
+reset_venv_if_applicable;
+create_venv_if_applicable;
+activate_venv;
+install_dependencies_into_venv;
